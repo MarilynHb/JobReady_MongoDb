@@ -1,53 +1,67 @@
+using JobReady.Models;
+using JobReady.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-[Route("api/[controller]")]
-[ApiController]
-public class PostController : ControllerBase{
-    private readonly PostService postService; 
-    public PostController(IPostService postService){
-        this.postService = (PostService)postService; 
-    }
-    
-    [HttpGet]
-    public async Task<IActionResult>GetAll(){
-        return Ok(await postService.GetAllAsync());
+public class PostController : Controller
+{
+    private readonly PostService postService;
+    public PostController(IPostService postService)
+    {
+        this.postService = (PostService)postService;
     }
 
-    [HttpGet("{id}:length(24)")]
-    public async Task<IActionResult> Get(string id){
-        var post = await postService.GetByIdAsync(id);
-        if(post == null){
-            return NotFound();
-        }
-        return Ok(post);
+    public async Task<IActionResult> Index()
+    {
+        var post = await postService.GetAllAsync();
+        return View(post);
+    }
+    public async Task<IActionResult> CreateAsync()
+    {
+        var users = await postService.GetAllUser();
+        ViewBag.Users = new SelectList(users.ToList(), "Id", "Username");
+        return View();
+    }
+    public async Task<IActionResult> Edit(string id)
+    {
+        var university = await postService.GetByIdAsync(id.ToString());
+        return View(university);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Post post){
-        if(!ModelState.IsValid){
-            return BadRequest();
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,Content,OwnerId")] Post post)
+    {
+        if (ModelState.IsValid)
+        {
+            await postService.CreateAsync(post);
+            return RedirectToAction(nameof(Index));
         }
-        await postService.CreateAsync(post);
-        return Ok(post.Id);
+        return View(post);
     }
 
-    [HttpPut("{id}:length(24)")]
-    public async Task<IActionResult> Update(string id, Post postIn){
-        var post = await postService.GetByIdAsync(id);
-        if (post == null){
+    [HttpPost]
+    public async Task<IActionResult> Edit(string id, [Bind("Id,Name,Location")] Post post)
+    {
+        if (id != post.Id.ToString())
+        {
             return NotFound();
         }
-        await postService.UpdateAsync(id, post);
-        return NoContent();
-    }
 
-    [HttpDelete("{id}:length(24)")]
-    public async Task<IActionResult> Delete(string id){
-        var post = await postService.GetByIdAsync(id);
-        if(post == null){
+        if (ModelState.IsValid)
+        {
+            await postService.UpdateAsync(id, post);
+            return RedirectToAction(nameof(Index));
+        }
+        return View(post);
+    }
+    public async Task<IActionResult> Details(string id)
+    {
+        var university = await postService.GetByIdAsync(id.ToString());
+        if (university == null)
+        {
             return NotFound();
         }
-        await postService.DeleteAsync(post.Id.ToString());
-        return NoContent();
+        return View(university);
     }
 }
