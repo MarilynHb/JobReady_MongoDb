@@ -1,6 +1,7 @@
 using JobReady.Services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using System.Linq;
 
 public class PostService : IPostService
 {
@@ -24,10 +25,11 @@ public class PostService : IPostService
     #endregion
 
     #region Create Post
-    public async Task<Post> CreateAsync(Post post)
+    public async Task<Post> CreateAsync(AddPostRequest request)
     {
+        var post = new Post() { Content = request.Content, CreatedOn = DateTime.Now };
         await context.PostCollection.InsertOneAsync(post);
-        await AddPostAsync(post.Id.ToString(), post.OwnerId);
+        await AddPostAsync(post.Id.ToString(), request.OwnerId);
         return post;
     }
     internal async Task AddPostAsync(string postId, string ownerId)
@@ -50,6 +52,14 @@ public class PostService : IPostService
     public async Task DeleteAsync(string id)
     {
         await context.PostCollection.DeleteOneAsync(c => c.Id.ToString() == id);
+    }
+    #endregion
+
+    #region Get Post Owner Id
+    public async Task<string> GetPostOwnerId(string postId)
+    {
+        var post = await context.UserCollection.Find(c => c.Post.Contains(postId)).FirstAsync();
+        return post.Id.ToString();
     }
     #endregion
 

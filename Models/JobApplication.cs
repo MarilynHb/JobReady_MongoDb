@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 
-public class PostApplication{
+public class JobApplication{
     public ObjectId Id {get;set;}
     public required string LetterOfMotivation {get;set;}
     public required string ApplicantId {get;set;}

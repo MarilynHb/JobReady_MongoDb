@@ -30,14 +30,14 @@ public class PostController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Content,OwnerId")] Post post)
+    public async Task<IActionResult> Create([Bind("Id,Content,OwnerId")] AddPostRequest postRequest)
     {
         if (ModelState.IsValid)
         {
-            await postService.CreateAsync(post);
+            await postService.CreateAsync(postRequest);
             return RedirectToAction(nameof(Index));
         }
-        return View(post);
+        return View(postRequest);
     }
 
     [HttpPost]
