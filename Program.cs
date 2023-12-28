@@ -11,6 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<MongoDbConfiguration>(
     builder.Configuration.GetSection(nameof(MongoDbConfiguration)));
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
