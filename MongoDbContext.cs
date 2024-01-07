@@ -10,7 +10,11 @@ public class MongoDbContext
         database = client.GetDatabase(settings.Value.DatabaseName);
     }
 
-     public IMongoCollection<User> UserCollection => database.GetCollection<User>("User");
-     public IMongoCollection<Post> PostCollection => database.GetCollection<Post>("Post");
-     public IMongoCollection<JobPost> JobPostCollection => database.GetCollection<JobPost>("JobPost");
+    public IMongoCollection<User> UserCollection => database.GetCollection<User>("User");
+    public IMongoCollection<Post> PostCollection => database.GetCollection<Post>("Post");
+    public IMongoCollection<Like> LikeCollection => database.GetCollection<Like>("Like");
+    public IMongoCollection<Comment> CommentCollection => database.GetCollection<Comment>("Comment");
+    public IMongoCollection<JobPost> JobPostCollection => database.GetCollection<JobPost>("JobPost");
+    public IMongoCollection<University> UniversityCollection => database.GetCollection<University>("University");
+    public IMongoCollection<JobApplication> JobApplicationCollection => database.GetCollection<JobApplication>("JobApplication");
 }
