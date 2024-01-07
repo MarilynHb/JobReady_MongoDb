@@ -1,3 +1,4 @@
+using JobReady.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
