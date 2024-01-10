@@ -6,12 +6,13 @@ using System.Linq;
 public class PostService : IPostService
 {
     private readonly MongoDbContext context;
-    private readonly IOptions<MongoDbConfiguration> settings;   
     public PostService(IOptions<MongoDbConfiguration> settings)
     {
-        this.settings = settings;
         context = new MongoDbContext(settings);
+        userService = new UserService(settings);
     }
+
+    private readonly UserService userService;
 
     #region Get Post
     public async Task<List<Post>> GetAllAsync()
@@ -34,7 +35,6 @@ public class PostService : IPostService
     }
     internal async Task AddPostAsync(string postId, string ownerId)
     {
-        var userService = new UserService(this.settings);
         var user = await userService.GetByIdAsync(ownerId);
         user.Post = user.Post.Concat(new List<string> { postId }).ToList();
         await userService.UpdateAsync(ownerId, user);
@@ -51,6 +51,7 @@ public class PostService : IPostService
     #region Delete Post
     public async Task DeleteAsync(string id)
     {
+        await RemovePostFromUser(id);
         await context.PostCollection.DeleteOneAsync(c => c.Id.ToString() == id);
     }
     #endregion
@@ -63,9 +64,17 @@ public class PostService : IPostService
     }
     #endregion
 
+    #region Remove Post From User
+   async Task RemovePostFromUser(string postId)
+    {
+        var user = await userService.GetByIdAsync(await GetPostOwnerId(postId));
+        user.Post =  user.Post.SkipWhile(t => t.Equals(postId));
+        await userService.UpdateAsync(user.Id.ToString(), user);
+    }
+    #endregion
+
     public async Task<IEnumerable<User>> GetAllUser()
     {
-        var userService = new UserService(this.settings);
         return await userService.GetAllAsync();
     }
 }

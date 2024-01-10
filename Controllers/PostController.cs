@@ -64,4 +64,10 @@ public class PostController : Controller
         }
         return View(university);
     }
+
+    public async Task<IActionResult> Delete(string id)
+    {
+        await postService.DeleteAsync(id.ToString());
+        return RedirectToAction(nameof(Index));
+    }
 }

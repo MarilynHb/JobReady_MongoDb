@@ -62,5 +62,11 @@ public class UniversityController : Controller
         }
         return View(university);
     }
+    public async Task<IActionResult> Delete(string id)
+    {
+        await universityService.DeleteAsync(id.ToString());
+        return RedirectToAction(nameof(Index));
+    }
+
 
 }
