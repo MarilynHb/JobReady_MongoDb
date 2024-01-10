@@ -24,8 +24,12 @@ public class PostController : Controller
     }
     public async Task<IActionResult> Edit(string id)
     {
-        var university = await postService.GetByIdAsync(id.ToString());
-        return View(university);
+        var users = await postService.GetAllUser();
+        ViewBag.Users = new SelectList(users.ToList(), "Id", "Username");
+        var post = await postService.GetByIdAsync(id.ToString());
+        var ownerId = await postService.GetPostOwnerId(id.ToString());
+        var postRequest = new AddPostRequest() { Id = post.Id.ToString(), CreatedOn = post.CreatedOn,  Content = post.Content, OwnerId = ownerId };
+        return View(postRequest);
     }
 
     [HttpPost]
@@ -41,7 +45,7 @@ public class PostController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(string id, [Bind("Id,Name,Location")] Post post)
+    public async Task<IActionResult> Edit(string id, [Bind("Id,Content,OwnerId,CreatedOn")] Post post)
     {
         if (id != post.Id.ToString())
         {
@@ -57,12 +61,12 @@ public class PostController : Controller
     }
     public async Task<IActionResult> Details(string id)
     {
-        var university = await postService.GetByIdAsync(id.ToString());
-        if (university == null)
+        var post = await postService.GetByIdAsync(id.ToString());
+        if (post == null)
         {
             return NotFound();
         }
-        return View(university);
+        return View(post);
     }
 
     public async Task<IActionResult> Delete(string id)
